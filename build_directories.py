@@ -1,3 +1,7 @@
+## Written by Eric Curl
+## The University of Alabama
+
+# import libraries 
 import os
 import sys
 import h5py
@@ -5,12 +9,14 @@ import numpy as np
 from PIL import Image
 import cv2
 
+# check for directories 
 def check_if_exists(__path):
     if os.path.isdir(__path+'training/'):
         sys.exit('ERROR: dataset already exists in this directory\nchange dataset location')
     if os.path.isdir(__path+'testing/'):
         sys.exit('ERROR: dataset already exists in this directory\nchange dataset location')
 
+# create directories in KITTI format
 def create_dir(__path):
     os.mkdir(__path+"training")
     os.mkdir(__path+"training/velodyne")
@@ -24,6 +30,7 @@ def create_dir(__path):
     os.mkdir(__path+"testing/calib")
     os.mkdir(__path+"testing/image_2")
     
+# pull LiDAR data from hpf5 structure and store in .bin format
 def transfer_data_from_hpf5(file_name,__path):
     dataset=h5py.File(__path+file_name,'r+')
     raw_data =dataset['/training_data']
@@ -41,10 +48,12 @@ def transfer_data_from_hpf5(file_name,__path):
         scan_id_dir=os.path.join(__path+'training/velodyne/',scan_id)
         f=open(scan_id_dir,"w")
         v_points=np.delete(v_points, (0),axis=0)
+        # create individual file for each lidar scan
         v_points.tofile(f)
         f.close()
     dataset.close()
-    
+
+# pull images from hpf5 dataset and store as .png
 def store_images(file_name,__path):
     dataset=h5py.File(__path+file_name,'r+')
     raw_data = dataset['/training_data']
